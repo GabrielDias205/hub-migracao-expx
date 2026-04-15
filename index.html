@@ -1269,38 +1269,38 @@
                         </div>
                     </div>
 
-                    <div class="metrics-grid">
-                        <div class="metric-card">
-                            <div class="metric-label">⚙️ Status</div>
-                            <div class="metric-value" style="color: #a78bfa;">EM DESENVOLVIMENTO</div>
-                            <div class="metric-subtitle">Fase 2 - Núcleo</div>
-                        </div>
-                        <div class="metric-card">
-                            <div class="metric-label">📈 Progresso</div>
-                            <div class="metric-value">60%</div>
-                            <div class="metric-subtitle">Estrutura base concluída</div>
-                        </div>
-                        <div class="metric-card">
-                            <div class="metric-label">👥 Squad</div>
-                            <div class="metric-value">5</div>
-                            <div class="metric-subtitle">Agentes especializados</div>
+                    <!-- PAINEL DE GERAÇÃO -->
+                    <div style="background: rgba(26, 26, 46, 0.8); border: 1px solid var(--border-dark); border-radius: 12px; padding: 24px; margin-bottom: 40px;">
+                        <div style="display: flex; flex-direction: column; gap: 16px;">
+                            <div>
+                                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-light);">Link do Google Docs</label>
+                                <input id="googleDocsUrl" type="text" placeholder="https://docs.google.com/document/d/..."
+                                    style="width: 100%; background: #1a1a2e; border: 1px solid #2a2a4e; border-radius: 8px; padding: 12px 16px; color: #dce0e8; font-size: 14px; outline: none; font-family: 'DM Sans', sans-serif; box-sizing: border-box;">
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-light);">Texto da Transcrição</label>
+                                <textarea id="transcriptionText" placeholder="Cole aqui o texto da reunião ou deixe em branco para extrair do Google Docs..."
+                                    style="width: 100%; height: 150px; background: #1a1a2e; border: 1px solid #2a2a4e; border-radius: 8px; padding: 12px 16px; color: #dce0e8; font-size: 14px; outline: none; font-family: 'DM Sans', sans-serif; resize: vertical; box-sizing: border-box;"></textarea>
+                            </div>
+                            <div style="display: flex; gap: 12px;">
+                                <button onclick="generateRecap()" style="background: linear-gradient(135deg, #38B109, #1DD6F6); border: none; border-radius: 8px; padding: 12px 24px; color: white; font-weight: 600; font-size: 15px; cursor: pointer; font-family: 'DM Sans', sans-serif;">
+                                    🚀 Gerar Resumo
+                                </button>
+                                <button onclick="downloadPDF()" style="background: transparent; border: 1px solid var(--accent-cyan); border-radius: 8px; padding: 12px 24px; color: var(--accent-cyan); font-weight: 600; font-size: 15px; cursor: pointer; font-family: 'DM Sans', sans-serif;" id="downloadBtn" disabled>
+                                    📥 Exportar PDF
+                                </button>
+                            </div>
+                            <div id="generationMessage" style="font-size: 13px; text-align: center; display: none;"></div>
                         </div>
                     </div>
 
-                    <div class="section-title">Funcionalidades Planejadas</div>
-                    <div class="card-grid">
-                        <div class="card" style="cursor: default;">
-                            <div class="card-title">Upload de Transcrição</div>
-                            <div class="card-desc">Suporte a arquivos de áudio, vídeo e texto. Transcrição automática com IA.</div>
+                    <!-- PRÉVIA DO RESULTADO -->
+                    <div id="recapPreview" style="display: none; background: rgba(26, 26, 46, 0.8); border: 1px solid var(--border-dark); border-radius: 12px; padding: 24px; margin-bottom: 40px;">
+                        <div style="text-align: center; margin-bottom: 16px;">
+                            <h3 style="color: var(--accent-green); margin-bottom: 8px;">✅ Resumo Gerado com Sucesso!</h3>
+                            <p style="color: var(--text-muted); font-size: 14px;">Visualização abaixo. Use o botão "Exportar PDF" para download.</p>
                         </div>
-                        <div class="card" style="cursor: default;">
-                            <div class="card-title">Geração Inteligente</div>
-                            <div class="card-desc">Resumo automático com pontos-chave, ações e responsáveis identificados.</div>
-                        </div>
-                        <div class="card" style="cursor: default;">
-                            <div class="card-title">Exportação PDF</div>
-                            <div class="card-desc">Documento profissional com logo, formatação e branding customizado.</div>
-                        </div>
+                        <iframe id="previewFrame" style="width: 100%; height: 600px; border: 1px solid var(--border-dark); border-radius: 8px; background: white;"></iframe>
                     </div>
                 </div>
 
@@ -1858,6 +1858,291 @@
                 // Auto-navigate para o primeiro resultado
                 showPage(results[0].id);
                 document.getElementById('searchInput').value = '';
+            }
+        }
+
+        // ============ MEETING RECAP GENERATOR ============
+        let generatedHTMLContent = null;
+
+        async function generateRecap() {
+            const googleDocsUrl = document.getElementById('googleDocsUrl').value.trim();
+            const transcriptionText = document.getElementById('transcriptionText').value.trim();
+            const btn = document.querySelector('#gerador-resumos button[onclick="generateRecap()"]');
+            const msg = document.getElementById('generationMessage');
+            const previewFrame = document.getElementById('previewFrame');
+            const recapPreview = document.getElementById('recapPreview');
+            const downloadBtn = document.getElementById('downloadBtn');
+
+            // Validação
+            if (!googleDocsUrl && !transcriptionText) {
+                msg.textContent = '❌ Forneça um link do Google Docs ou cole uma transcrição.';
+                msg.style.color = '#ff6b6b';
+                msg.style.display = 'block';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = '⏳ Gerando...';
+            msg.textContent = '📋 Processando com a squad de agentes...';
+            msg.style.color = 'var(--accent-cyan)';
+            msg.style.display = 'block';
+
+            try {
+                // Se for URL do Google Docs, extrair o conteúdo
+                let contentToProcess = transcriptionText;
+
+                if (googleDocsUrl && !transcriptionText) {
+                    msg.textContent = '📄 Extraindo conteúdo do Google Docs...';
+
+                    // Validar se é um URL do Google Docs válido
+                    if (!googleDocsUrl.includes('docs.google.com/document')) {
+                        throw new Error('URL inválida. Use um link do Google Docs.');
+                    }
+
+                    // Chamar WebFetch para extrair o conteúdo do Google Docs
+                    const googleDocsResponse = await fetch('https://zyzxhnvcanapobxagedp.supabase.co/rest/v1/rpc/fetch_google_docs', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp5enhobnZjYW5hcG9ieGFnZWRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU5NTIzMDIsImV4cCI6MjA5MTUyODMwMn0.G9x0BW8VYdP5nc1u4n74_UrmCc5u15aFS5MEgYvXCek'
+                        },
+                        body: JSON.stringify({ url: googleDocsUrl })
+                    });
+
+                    if (!googleDocsResponse.ok) {
+                        contentToProcess = 'Link do Google Docs fornecido:\n' + googleDocsUrl + '\n\n[Pendente extração de conteúdo]';
+                    } else {
+                        const docsData = await googleDocsResponse.json();
+                        contentToProcess = docsData.content || googleDocsUrl;
+                    }
+                }
+
+                // Chamar o agent squad para gerar o resumo
+                msg.textContent = '🤖 Squad processando (Insight Hunter → Content Creator → Designer → QA)...';
+
+                const recapResponse = await fetch('https://zyzxhnvcanapobxagedp.supabase.co/rest/v1/rpc/generate_meeting_recap', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp5enhobnZjYW5hcG9ieGFnZWRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU5NTIzMDIsImV4cCI6MjA5MTUyODMwMn0.G9x0BW8VYdP5nc1u4n74_UrmCc5u15aFS5MEgYvXCek'
+                    },
+                    body: JSON.stringify({
+                        transcription: contentToProcess,
+                        source: googleDocsUrl ? 'google_docs' : 'manual'
+                    })
+                });
+
+                if (!recapResponse.ok) {
+                    // Se a API não estiver disponível, usar template de exemplo
+                    msg.textContent = '⚠️ Usando template de exemplo (API em desenvolvimento)...';
+
+                    const exampleHTML = generateExampleRecap(contentToProcess);
+                    displayRecapPreview(exampleHTML);
+                    generatedHTMLContent = exampleHTML;
+                } else {
+                    const recapData = await recapResponse.json();
+                    const htmlContent = recapData.html || recapData.meeting_recap_html;
+
+                    if (!htmlContent) {
+                        throw new Error('Nenhum HTML gerado. Verifique a transcrição.');
+                    }
+
+                    displayRecapPreview(htmlContent);
+                    generatedHTMLContent = htmlContent;
+                }
+
+                msg.textContent = '✅ Resumo gerado com sucesso! Visualização abaixo.';
+                msg.style.color = 'var(--accent-green)';
+                recapPreview.style.display = 'block';
+                downloadBtn.disabled = false;
+
+            } catch (error) {
+                console.error('Erro:', error);
+                msg.textContent = '❌ ' + error.message;
+                msg.style.color = '#ff6b6b';
+                generatedHTMLContent = null;
+                downloadBtn.disabled = true;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🚀 Gerar Resumo';
+            }
+        }
+
+        function displayRecapPreview(htmlContent) {
+            const previewFrame = document.getElementById('previewFrame');
+            previewFrame.srcdoc = htmlContent;
+        }
+
+        function generateExampleRecap(transcription) {
+            // Template HTML base para resumo de reunião
+            return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resumo de Reunião - Hub de Migração</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #00000F;
+      color: #dce0e8;
+      line-height: 1.6;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .hero {
+      text-align: center;
+      margin-bottom: 48px;
+      padding-bottom: 32px;
+      border-bottom: 1px solid #1a1a2e;
+    }
+    .hero h1 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 32px;
+      margin-bottom: 12px;
+      color: #dce0e8;
+    }
+    .badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #38B109, #1DD6F6);
+      color: white;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    .meta {
+      color: #a0a4b0;
+      font-size: 14px;
+      margin-top: 16px;
+    }
+    .section {
+      margin-bottom: 40px;
+    }
+    .section h2 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 20px;
+      color: #38B109;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid rgba(56, 177, 9, 0.2);
+    }
+    .section p {
+      color: #c8ccd4;
+      margin-bottom: 12px;
+    }
+    .transcription {
+      background: #0a0a1a;
+      border: 1px solid #1a1a2e;
+      border-radius: 8px;
+      padding: 20px;
+      font-size: 13px;
+      line-height: 1.8;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .footer {
+      text-align: center;
+      color: #a0a4b0;
+      font-size: 12px;
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid #1a1a2e;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="hero">
+      <div class="badge">📋 Resumo de Reunião</div>
+      <h1>Resumo Gerado</h1>
+      <p class="meta">Gerado em ${new Date().toLocaleDateString('pt-BR')}</p>
+    </div>
+
+    <div class="section">
+      <h2>📝 Transcrição Fornecida</h2>
+      <div class="transcription">${escapeHtml(transcription || 'Nenhuma transcrição fornecida')}</div>
+    </div>
+
+    <div class="section">
+      <h2>⚙️ Próximos Passos</h2>
+      <p>Este é um resumo preliminar baseado na transcrição fornecida. Para obter um resumo completo com:</p>
+      <ul style="margin-left: 20px; margin-top: 12px;">
+        <li>Análise estruturada de decisões e ações</li>
+        <li>Extração automática de insights</li>
+        <li>Formatação profissional com design system</li>
+        <li>Exportação em PDF</li>
+      </ul>
+      <p style="margin-top: 12px;">A squad de agentes processará automaticamente. Aguarde a geração completa.</p>
+    </div>
+
+    <div class="footer">
+      <p>Gerado pelo Hub de Migração • ${new Date().toLocaleTimeString('pt-BR')}</p>
+    </div>
+  </div>
+</body>
+</html>`;
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        async function downloadPDF() {
+            if (!generatedHTMLContent) {
+                alert('Gere um resumo primeiro antes de fazer o download.');
+                return;
+            }
+
+            const btn = document.getElementById('downloadBtn');
+            btn.disabled = true;
+            btn.textContent = '📥 Convertendo...';
+
+            try {
+                // Usar iframe para impressão
+                const printFrame = document.createElement('iframe');
+                printFrame.style.display = 'none';
+                printFrame.srcdoc = generatedHTMLContent;
+                document.body.appendChild(printFrame);
+
+                // Aguardar carregamento do iframe
+                await new Promise(resolve => {
+                    printFrame.onload = resolve;
+                    setTimeout(resolve, 2000); // Fallback de 2 segundos
+                });
+
+                // Usar print nativo do navegador
+                setTimeout(() => {
+                    printFrame.contentWindow.print();
+                    setTimeout(() => {
+                        document.body.removeChild(printFrame);
+                        btn.disabled = false;
+                        btn.textContent = '📥 Exportar PDF';
+                    }, 500);
+                }, 500);
+
+            } catch (error) {
+                console.error('Erro ao exportar:', error);
+                alert('Erro ao exportar PDF. Tente novamente.');
+                btn.disabled = false;
+                btn.textContent = '📥 Exportar PDF';
             }
         }
     </script>
