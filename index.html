@@ -1564,22 +1564,35 @@
 
         // ============ DADOS DO KANBAN ============
         async function loadKanbanData() {
-            const { data: clients, error } = await db
-                .from('kanban_clients')
-                .select('*');
+            try {
+                const { data: clients, error } = await db
+                    .from('kanban_clients')
+                    .select('*');
 
-            if (error) {
-                console.error('Erro ao carregar dados:', error);
-                return;
+                if (error) {
+                    console.error('❌ Erro ao carregar dados:', error);
+                    return;
+                }
+
+                console.log('✅ Dados carregados:', {
+                    total: clients ? clients.length : 0,
+                    timestamp: new Date().toLocaleTimeString('pt-BR')
+                });
+
+                if (clients && clients.length > 0) {
+                    // Debugar primeiro cliente para ver estrutura
+                    const firstClient = clients[0];
+                    console.log('📊 Amostra:', {
+                        name: firstClient.name,
+                        meetings: firstClient.meetings,
+                        type: typeof firstClient.meetings
+                    });
+                }
+
+                updateDashboard(clients);
+            } catch (err) {
+                console.error('🔥 Erro crítico:', err);
             }
-
-            console.log('Dados carregados do Kanban:', clients);
-            console.log('Total de clientes:', clients ? clients.length : 0);
-            if (clients && clients.length > 0) {
-                console.log('Primeiro cliente:', clients[0]);
-            }
-
-            updateDashboard(clients);
         }
 
         function classifyClient(client) {
@@ -1631,12 +1644,14 @@
 
         // ============ REALTIME ============
         let realtimeChannel = null;
+        let lastDataHash = null;
 
         function subscribeRealtime() {
             if (realtimeChannel) {
                 db.removeChannel(realtimeChannel);
             }
 
+            // Tentar conectar ao realtime
             realtimeChannel = db
                 .channel('kanban-hub-watch')
                 .on('postgres_changes', {
@@ -1644,17 +1659,17 @@
                     schema: 'public',
                     table: 'kanban_clients'
                 }, (payload) => {
-                    console.log('Realtime update received:', payload);
+                    console.log('🔄 Realtime update received:', payload);
                     loadKanbanData();
                 })
                 .subscribe((status) => {
-                    console.log('Realtime subscription status:', status);
+                    console.log('📡 Realtime subscription status:', status);
                 });
 
-            // Fallback: Auto-refresh a cada 5 segundos
+            // Fallback: Auto-refresh agressivo a cada 3 segundos (garante sincronização)
             setInterval(() => {
                 loadKanbanData();
-            }, 5000);
+            }, 3000);
         }
 
         // ============ NAVEGAÇÃO ============
