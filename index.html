@@ -1561,7 +1561,8 @@
         }
 
         function classifyClient(client) {
-            const m = client.meetings ? client.meetings.length : 0;
+            // meetings é um número inteiro (0, 1, 2, 3, etc), não um array
+            const m = typeof client.meetings === 'number' ? client.meetings : (client.meetings?.length || 0);
             if (m === 0) return 'waiting';
             if (m === 1) return 'phase1';
             if (m <= 3) return 'phase2';
