@@ -1621,9 +1621,17 @@
                     schema: 'public',
                     table: 'kanban_clients'
                 }, (payload) => {
+                    console.log('Realtime update received:', payload);
                     loadKanbanData();
                 })
-                .subscribe();
+                .subscribe((status) => {
+                    console.log('Realtime subscription status:', status);
+                });
+
+            // Fallback: Auto-refresh a cada 5 segundos
+            setInterval(() => {
+                loadKanbanData();
+            }, 5000);
         }
 
         // ============ NAVEGAÇÃO ============
