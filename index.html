@@ -807,39 +807,6 @@
 <body>
     <a href="#main-content" class="skip-link">Pular para conteúdo principal</a>
 
-    <!-- TELA DE LOGIN / SIGNUP -->
-    <div id="login-screen" style="display:none; position:fixed; inset:0; background:#00000F; z-index:9999; display:flex; align-items:center; justify-content:center;">
-        <div style="background:#0a0a1a; border:1px solid #1a1a2e; border-radius:16px; padding:48px; width:100%; max-width:400px;">
-            <div style="text-align:center; margin-bottom:32px;">
-                <img src="logo-dark.png" height="40" alt="Logo" style="margin-bottom:16px;">
-                <h2 style="font-family:'Plus Jakarta Sans',sans-serif; font-size:20px; color:#dce0e8; margin-bottom:8px;">Hub de Migração</h2>
-                <p style="color:#a0a4b0; font-size:14px;">Acesso restrito. Faça login para continuar.</p>
-            </div>
-
-            <!-- LOGIN FORM -->
-            <div id="loginForm" style="display:flex; flex-direction:column; gap:16px;">
-                <input id="loginEmail" type="email" placeholder="seu@email.com"
-                    style="background:#1a1a2e; border:1px solid #2a2a4e; border-radius:8px; padding:12px 16px; color:#dce0e8; font-size:14px; outline:none; font-family:'DM Sans',sans-serif;">
-                <div style="position:relative;">
-                    <input id="loginPassword" type="password" placeholder="Senha"
-                        style="width:100%; background:#1a1a2e; border:1px solid #2a2a4e; border-radius:8px; padding:12px 16px; padding-right:40px; color:#dce0e8; font-size:14px; outline:none; font-family:'DM Sans',sans-serif; box-sizing:border-box;">
-                    <button onclick="togglePasswordVisibility('loginPassword')" type="button"
-                        style="position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; color:#a0a4b0; cursor:pointer; width:24px; height:24px; padding:0; display:flex; align-items:center; justify-content:center;">
-                        <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px; height:20px;">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                            <circle cx="12" cy="12" r="3"></circle>
-                        </svg>
-                    </button>
-                </div>
-                <button id="loginBtn" onclick="doLogin()"
-                    style="background:linear-gradient(135deg,#38B109,#1DD6F6); border:none; border-radius:8px; padding:12px; color:white; font-weight:600; font-size:15px; cursor:pointer; font-family:'DM Sans',sans-serif;">
-                    Entrar
-                </button>
-                <p id="loginError" style="color:#ff6b6b; font-size:13px; text-align:center; display:none;"></p>
-            </div>
-        </div>
-    </div>
-
     <div class="container">
         <!-- SIDEBAR -->
         <div class="sidebar">
@@ -909,13 +876,6 @@
                     </div>
                 </div>
             </nav>
-            <!-- USER FOOTER -->
-            <div style="padding:16px 20px; border-top:1px solid var(--border-dark); margin-top:auto;">
-                <span id="userEmailDisplay" style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:8px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
-                <button onclick="doLogout()" style="width:100%; background:transparent; border:1px solid var(--border-dark); border-radius:8px; padding:8px; color:var(--text-muted); font-size:13px; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s;">
-                    Sair
-                </button>
-            </div>
         </div>
 
         <!-- MAIN CONTENT -->
@@ -1545,57 +1505,6 @@
                         </div>
                     </div>
 
-                    <div class="metrics-grid">
-                        <div class="metric-card">
-                            <div class="metric-label">👤 Minha Conta</div>
-                            <div class="metric-value" id="settingsEmail" style="font-size: 14px;">-</div>
-                            <div class="metric-subtitle">Seu email</div>
-                        </div>
-                    </div>
-
-                    <div class="section-title">Alterar Senha</div>
-                    <div style="background:rgba(26, 26, 46, 0.8); border:1px solid var(--border-dark); border-radius:12px; padding:24px; margin-bottom:40px;">
-                        <div style="display:flex; flex-direction:column; gap:16px; max-width:400px;">
-                            <div>
-                                <label style="display:block; margin-bottom:8px; font-weight:600; color:var(--text-light);">Senha Atual</label>
-                                <div style="position:relative;">
-                                    <input id="currentPassword" type="password" placeholder="Digite sua senha atual"
-                                        style="width:100%; background:#1a1a2e; border:1px solid #2a2a4e; border-radius:8px; padding:12px 16px; padding-right:40px; color:#dce0e8; font-size:14px; outline:none; font-family:'DM Sans',sans-serif; box-sizing:border-box;">
-                                    <button onclick="togglePasswordVisibility('currentPassword')" type="button"
-                                        style="position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; color:#a0a4b0; cursor:pointer; font-size:16px; padding:4px 8px;">
-                                        👁️
-                                    </button>
-                                </div>
-                            </div>
-                            <div>
-                                <label style="display:block; margin-bottom:8px; font-weight:600; color:var(--text-light);">Nova Senha</label>
-                                <div style="position:relative;">
-                                    <input id="newPassword" type="password" placeholder="Mínimo 6 caracteres"
-                                        style="width:100%; background:#1a1a2e; border:1px solid #2a2a4e; border-radius:8px; padding:12px 16px; padding-right:40px; color:#dce0e8; font-size:14px; outline:none; font-family:'DM Sans',sans-serif; box-sizing:border-box;">
-                                    <button onclick="togglePasswordVisibility('newPassword')" type="button"
-                                        style="position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; color:#a0a4b0; cursor:pointer; font-size:16px; padding:4px 8px;">
-                                        👁️
-                                    </button>
-                                </div>
-                            </div>
-                            <div>
-                                <label style="display:block; margin-bottom:8px; font-weight:600; color:var(--text-light);">Confirmar Nova Senha</label>
-                                <div style="position:relative;">
-                                    <input id="confirmPassword" type="password" placeholder="Repita a nova senha"
-                                        style="width:100%; background:#1a1a2e; border:1px solid #2a2a4e; border-radius:8px; padding:12px 16px; padding-right:40px; color:#dce0e8; font-size:14px; outline:none; font-family:'DM Sans',sans-serif; box-sizing:border-box;">
-                                    <button onclick="togglePasswordVisibility('confirmPassword')" type="button"
-                                        style="position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; color:#a0a4b0; cursor:pointer; font-size:16px; padding:4px 8px;">
-                                        👁️
-                                    </button>
-                                </div>
-                            </div>
-                            <button onclick="changePassword()"
-                                style="background:linear-gradient(135deg,#38B109,#1DD6F6); border:none; border-radius:8px; padding:12px; color:white; font-weight:600; font-size:15px; cursor:pointer; font-family:'DM Sans',sans-serif;">
-                                Alterar Senha
-                            </button>
-                            <p id="passwordMessage" style="color:#ff6b6b; font-size:13px; text-align:center; display:none;"></p>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -1636,254 +1545,6 @@
 
         const TOTAL_CLIENTS = 46;
         const ATTENTION_THRESHOLD_DAYS = 14;
-
-        // ============ AUTH ============
-        async function initAuth() {
-            const { data: { session } } = await db.auth.getSession();
-            if (session) {
-                showDashboard(session.user);
-            } else {
-                showLoginScreen();
-            }
-
-            db.auth.onAuthStateChange((event, session) => {
-                if (event === 'SIGNED_OUT' || !session) {
-                    showLoginScreen();
-                } else if (event === 'SIGNED_IN') {
-                    showDashboard(session.user);
-                }
-            });
-        }
-
-        function showLoginScreen() {
-            document.getElementById('login-screen').style.display = 'flex';
-            document.querySelector('.container').style.display = 'none';
-        }
-
-        async function showDashboard(user) {
-            document.getElementById('login-screen').style.display = 'none';
-            document.querySelector('.container').style.display = 'flex';
-            document.getElementById('userEmailDisplay').textContent = user.email;
-            document.getElementById('settingsEmail').textContent = user.email;
-
-            const role = await loadUserRole();
-            if (role === 'admin') {
-                showAdminPanel();
-            }
-
-            loadKanbanData();
-            subscribeRealtime();
-        }
-
-        async function doLogin() {
-            const email = document.getElementById('loginEmail').value.trim();
-            const password = document.getElementById('loginPassword').value;
-            const btn = document.getElementById('loginBtn');
-            const errorEl = document.getElementById('loginError');
-
-            btn.textContent = 'Entrando...';
-            btn.disabled = true;
-            errorEl.style.display = 'none';
-
-            const { error } = await db.auth.signInWithPassword({ email, password });
-
-            if (error) {
-                errorEl.textContent = 'Email ou senha inválidos.';
-                errorEl.style.display = 'block';
-                btn.textContent = 'Entrar';
-                btn.disabled = false;
-            }
-        }
-
-        async function doLogout() {
-            await db.auth.signOut();
-        }
-
-        // ============ ADMIN FUNCTIONS ============
-        let currentUserRole = null;
-
-        async function loadUserRole() {
-            const { data: { session } } = await db.auth.getSession();
-            if (!session) return null;
-
-            const role = session.user.user_metadata?.role || 'user';
-            currentUserRole = role;
-            return role;
-        }
-
-        function showAdminPanel() {
-            const adminPanel = document.createElement('div');
-            adminPanel.id = 'adminPanel';
-            adminPanel.style.cssText = `
-                position: fixed;
-                right: 20px;
-                top: 100px;
-                background: #0a0a1a;
-                border: 1px solid #1a1a2e;
-                border-radius: 12px;
-                padding: 20px;
-                width: 300px;
-                z-index: 1000;
-                box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-            `;
-
-            adminPanel.innerHTML = `
-                <h3 style="margin-top:0; color:#38B109; font-size:16px;">⚙️ Painel Admin</h3>
-                <div style="display:flex; flex-direction:column; gap:12px;">
-                    <input id="newUserEmail" type="email" placeholder="Email do novo usuário"
-                        style="background:#1a1a2e; border:1px solid #2a2a4e; border-radius:8px; padding:8px 12px; color:#dce0e8; font-size:13px; outline:none; font-family:'DM Sans',sans-serif;">
-                    <select id="newUserRole" style="background:#1a1a2e; border:1px solid #2a2a4e; border-radius:8px; padding:8px 12px; color:#dce0e8; font-size:13px; outline:none; font-family:'DM Sans',sans-serif;">
-                        <option value="user">Usuário (visualiza dados)</option>
-                        <option value="editor">Editor (visualiza + altera senhas)</option>
-                    </select>
-                    <button onclick="createNewUser()" style="background:linear-gradient(135deg,#38B109,#1DD6F6); border:none; border-radius:8px; padding:8px; color:white; font-weight:600; font-size:13px; cursor:pointer; font-family:'DM Sans',sans-serif;">
-                        Criar Usuário
-                    </button>
-                    <div id="adminMessage" style="font-size:12px; text-align:center; display:none;"></div>
-                    <hr style="border:none; border-top:1px solid #1a1a2e; margin:8px 0;">
-                    <div id="usersList" style="max-height:300px; overflow-y:auto; font-size:12px;"></div>
-                </div>
-            `;
-
-            document.body.appendChild(adminPanel);
-            loadUsers();
-        }
-
-        async function createNewUser() {
-            const email = document.getElementById('newUserEmail').value.trim();
-            const role = document.getElementById('newUserRole').value;
-            const msg = document.getElementById('adminMessage');
-
-            if (!email) {
-                msg.textContent = '❌ Preencha o email';
-                msg.style.display = 'block';
-                return;
-            }
-
-            // Gerar senha temporária aleatória
-            const tempPassword = Math.random().toString(36).slice(-10);
-
-            try {
-                const { error } = await db.auth.admin.createUser({
-                    email: email,
-                    password: tempPassword,
-                    email_confirm: true,
-                    user_metadata: {
-                        role: role,
-                        name: email,
-                        temp_password: true
-                    }
-                });
-
-                if (error) throw error;
-
-                msg.style.color = '#38B109';
-                msg.innerHTML = `✅ Usuário criado!<br>Senha temp: <strong>${tempPassword}</strong>`;
-                msg.style.display = 'block';
-
-                document.getElementById('newUserEmail').value = '';
-                setTimeout(() => loadUsers(), 500);
-
-            } catch (error) {
-                msg.style.color = '#ff6b6b';
-                msg.textContent = '❌ ' + (error.message || 'Erro ao criar usuário');
-                msg.style.display = 'block';
-            }
-        }
-
-        async function loadUsers() {
-            const { data: { users } } = await db.auth.admin.listUsers();
-            const usersList = document.getElementById('usersList');
-
-            usersList.innerHTML = users.map(u => `
-                <div style="padding:8px; border-bottom:1px solid #1a1a2e; cursor:pointer;">
-                    <div style="color:#dce0e8; font-weight:600;">${u.email}</div>
-                    <div style="color:#a0a4b0; font-size:11px;">Acesso: ${u.user_metadata?.role || 'user'}</div>
-                    <button onclick="deleteUserAdmin('${u.id}')" style="margin-top:4px; background:#ff6b6b; border:none; border-radius:4px; padding:4px 8px; color:white; font-size:11px; cursor:pointer; font-family:'DM Sans',sans-serif;">
-                        Deletar
-                    </button>
-                </div>
-            `).join('');
-        }
-
-        async function deleteUserAdmin(userId) {
-            if (!confirm('Tem certeza que quer deletar este usuário?')) return;
-
-            try {
-                const { error } = await db.auth.admin.deleteUser(userId);
-                if (error) throw error;
-                loadUsers();
-            } catch (error) {
-                alert('Erro ao deletar: ' + error.message);
-            }
-        }
-
-        // ============ CHANGE PASSWORD ============
-        async function changePassword() {
-            const currentPassword = document.getElementById('currentPassword').value;
-            const newPassword = document.getElementById('newPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            const msg = document.getElementById('passwordMessage');
-
-            msg.style.display = 'none';
-
-            if (!currentPassword || !newPassword || !confirmPassword) {
-                msg.textContent = '❌ Preencha todos os campos.';
-                msg.style.color = '#ff6b6b';
-                msg.style.display = 'block';
-                return;
-            }
-
-            if (newPassword.length < 6) {
-                msg.textContent = '❌ A nova senha deve ter no mínimo 6 caracteres.';
-                msg.style.color = '#ff6b6b';
-                msg.style.display = 'block';
-                return;
-            }
-
-            if (newPassword !== confirmPassword) {
-                msg.textContent = '❌ As senhas não correspondem.';
-                msg.style.color = '#ff6b6b';
-                msg.style.display = 'block';
-                return;
-            }
-
-            // Primeiro, verificar se a senha atual está correta fazendo um re-authenticate
-            const { data: { session } } = await db.auth.getSession();
-            const { error: signInError } = await db.auth.signInWithPassword({
-                email: session.user.email,
-                password: currentPassword
-            });
-
-            if (signInError) {
-                msg.textContent = '❌ Senha atual incorreta.';
-                msg.style.color = '#ff6b6b';
-                msg.style.display = 'block';
-                return;
-            }
-
-            // Atualizar a senha
-            const { error: updateError } = await db.auth.updateUser({
-                password: newPassword
-            });
-
-            if (updateError) {
-                msg.textContent = '❌ ' + updateError.message;
-                msg.style.color = '#ff6b6b';
-                msg.style.display = 'block';
-            } else {
-                msg.textContent = '✅ Senha alterada com sucesso!';
-                msg.style.color = '#38B109';
-                msg.style.display = 'block';
-
-                // Limpar campos
-                document.getElementById('currentPassword').value = '';
-                document.getElementById('newPassword').value = '';
-                document.getElementById('confirmPassword').value = '';
-
-                setTimeout(() => msg.style.display = 'none', 3000);
-            }
-        }
 
         // ============ DADOS DO KANBAN ============
         async function loadKanbanData() {
@@ -2057,8 +1718,9 @@
                 document.getElementById('themeLabel').textContent = 'Tema Escuro';
             }
 
-            // Initialize authentication
-            initAuth();
+            // Load Kanban data directly (no auth required)
+            loadKanbanData();
+            subscribeRealtime();
 
             // Calculate days elapsed (from Jan 22, 2026)
             const startDate = new Date('2026-01-22');
