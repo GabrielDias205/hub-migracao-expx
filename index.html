@@ -1557,6 +1557,12 @@
                 return;
             }
 
+            console.log('Dados carregados do Kanban:', clients);
+            console.log('Total de clientes:', clients ? clients.length : 0);
+            if (clients && clients.length > 0) {
+                console.log('Primeiro cliente:', clients[0]);
+            }
+
             updateDashboard(clients);
         }
 
