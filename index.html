@@ -1550,7 +1550,7 @@
         async function loadKanbanData() {
             const { data: clients, error } = await db
                 .from('kanban_clients')
-                .select('id, meetings, ultima_atividade, created_at');
+                .select('*');
 
             if (error) {
                 console.error('Erro ao carregar dados:', error);
