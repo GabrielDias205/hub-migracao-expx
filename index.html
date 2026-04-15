@@ -1,0 +1,2178 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hub de Migração - Plano 2026</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Supabase JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-dark: #00000F;
+            --bg-darker: #0a0a1a;
+            --text-light: #dce0e8;
+            --text-muted: #a0a4b0;
+            --accent-green: #38B109;
+            --accent-cyan: #1DD6F6;
+            --border-dark: #1a1a2e;
+            --hover-dark: #1e1e3f;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, var(--bg-darker) 0%, var(--bg-dark) 100%);
+            border-right: 1px solid var(--border-dark);
+            padding: 24px 0;
+            display: flex;
+            flex-direction: column;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 32px;
+            border-bottom: 1px solid var(--border-dark);
+            margin-bottom: 24px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent-green) 0%, var(--accent-cyan) 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 700;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-light);
+        }
+
+        .logo-subtitle {
+            font-size: 11px;
+            color: var(--accent-green);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 0 12px;
+        }
+
+        .nav-section {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-bottom: 16px;
+        }
+
+        .nav-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 0 8px;
+            margin-top: 8px;
+            margin-bottom: 4px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 200ms ease;
+            font-size: 14px;
+            color: var(--text-light);
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: var(--hover-dark);
+            border-left-color: var(--accent-green);
+        }
+
+        .nav-item.active {
+            background: rgba(56, 177, 9, 0.1);
+            color: var(--accent-green);
+            border-left-color: var(--accent-green);
+            font-weight: 600;
+        }
+
+        .nav-item:focus {
+            outline: 3px solid var(--accent-cyan);
+            outline-offset: -3px;
+        }
+
+        body.keyboard-nav .nav-item:focus {
+            box-shadow: inset 0 0 0 3px var(--accent-cyan);
+        }
+
+        .nav-icon {
+            font-size: 18px;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        .nav-item:hover .nav-icon,
+        .nav-item.active .nav-icon {
+            color: var(--accent-green);
+        }
+
+        svg.nav-icon {
+            width: 20px;
+            height: 20px;
+            stroke-width: 2;
+            fill: none;
+            stroke: currentColor;
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: rgba(10, 10, 26, 0.6);
+            border-bottom: 1px solid var(--border-dark);
+            padding: 16px 32px;
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+        }
+
+        .header-left {
+            flex: 1;
+        }
+
+        .header-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-light);
+            margin-bottom: 4px;
+        }
+
+        .header-subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .header-search {
+            flex: 0 1 320px;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(26, 26, 46, 0.8);
+            border: 1px solid var(--border-dark);
+            border-radius: 8px;
+            padding: 10px 16px;
+            transition: all 200ms ease;
+        }
+
+        .search-box:focus-within {
+            border-color: var(--accent-green);
+            background: rgba(26, 26, 46, 1);
+        }
+
+        .search-box svg {
+            width: 18px;
+            height: 18px;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        .search-box input {
+            flex: 1;
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 14px;
+            outline: none;
+        }
+
+        .search-box input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-action {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(56, 177, 9, 0.1);
+            border: 1px solid rgba(56, 177, 9, 0.2);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 200ms ease;
+            color: var(--text-muted);
+            position: relative;
+        }
+
+        .header-action:hover {
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+        }
+
+        .header-action svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 24px;
+            height: 24px;
+            background: #ff4444;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
+            border: 2px solid var(--bg-dark);
+        }
+
+        .user-menu {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 200ms ease;
+        }
+
+        .user-menu:hover {
+            background: rgba(56, 177, 9, 0.1);
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-green) 0%, var(--accent-cyan) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: white;
+            font-size: 14px;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .user-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+
+        .user-role {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 8px;
+            background: var(--bg-darker);
+            border: 1px solid var(--border-dark);
+            border-radius: 12px;
+            padding: 8px;
+            min-width: 200px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            display: none;
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(-10px);
+            pointer-events: none;
+            transition: all 200ms ease;
+        }
+
+        .dropdown-menu.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: var(--text-light);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 200ms ease;
+            font-size: 13px;
+            text-decoration: none;
+        }
+
+        .dropdown-item:hover {
+            background: var(--hover-dark);
+            color: var(--accent-green);
+        }
+
+        .dropdown-item svg {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: var(--border-dark);
+            margin: 8px 0;
+        }
+
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 32px;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+            animation: fadeIn 300ms ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: linear-gradient(135deg, var(--hover-dark) 0%, var(--bg-darker) 100%);
+            border: 1px solid var(--border-dark);
+            border-radius: 12px;
+            padding: 28px;
+            cursor: pointer;
+            transition: all 300ms ease;
+            display: flex;
+            flex-direction: column;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .card:hover {
+            border-color: var(--accent-green);
+            transform: translateY(-6px);
+            box-shadow: 0 16px 40px rgba(56, 177, 9, 0.2);
+        }
+
+        .card-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-light);
+            margin-bottom: 12px;
+        }
+
+        .card-desc {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            flex: 1;
+            line-height: 1.6;
+        }
+
+        .card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-dark);
+        }
+
+        .card-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: rgba(56, 177, 9, 0.1);
+            color: var(--accent-green);
+        }
+
+        .card-status.dev {
+            background: rgba(124, 58, 237, 0.1);
+            color: #a78bfa;
+        }
+
+        .card-status.published {
+            background: rgba(56, 177, 9, 0.1);
+            color: var(--accent-green);
+        }
+
+        .card-arrow {
+            color: var(--accent-green);
+            font-size: 20px;
+            transition: transform 200ms ease;
+        }
+
+        .card:hover .card-arrow {
+            transform: translateX(4px);
+        }
+
+        .intro-section {
+            margin-bottom: 40px;
+        }
+
+        .intro-text h2 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-light);
+        }
+
+        .intro-text p {
+            font-size: 16px;
+            color: var(--text-muted);
+            line-height: 1.8;
+            max-width: 800px;
+        }
+
+        .section-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--text-light);
+        }
+
+        .info-box {
+            background: rgba(56, 177, 9, 0.05);
+            border: 1px solid rgba(56, 177, 9, 0.2);
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 32px;
+        }
+
+        .info-box h3 {
+            color: var(--accent-green);
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .info-box p {
+            color: var(--text-muted);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+
+        .status-indicator.online {
+            background: var(--accent-green);
+            box-shadow: 0 0 8px var(--accent-green);
+        }
+
+        .status-indicator.offline {
+            background: #a0a4b0;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: var(--accent-green);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 200ms ease;
+        }
+
+        .btn:hover {
+            background: #44cc12;
+            transform: translateY(-2px);
+        }
+
+        /* PROGRESS BAR STYLES */
+        .progress-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 6px;
+            background: rgba(160, 164, 176, 0.2);
+            border-radius: 3px;
+            overflow: hidden;
+            border: 1px solid rgba(160, 164, 176, 0.1);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-green) 0%, var(--accent-cyan) 100%);
+            border-radius: 3px;
+            animation: progressPulse 2s ease-in-out infinite;
+            transition: width 600ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes progressPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .progress-percent {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--accent-green);
+            min-width: 35px;
+            text-align: right;
+        }
+
+        /* METRICS DASHBOARD */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, var(--hover-dark) 0%, var(--bg-darker) 100%);
+            border: 1px solid var(--border-dark);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .metric-value {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-green) 0%, var(--accent-cyan) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .metric-subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* ACCESSIBILITY & DARK MODE TOGGLE */
+
+        html.light-mode {
+            --bg-dark: #f5f5f7;
+            --bg-darker: #ffffff;
+            --text-light: #1a1a1f;
+            --text-muted: #6b6b77;
+            --border-dark: #e5e5e9;
+            --hover-dark: #f0f0f5;
+        }
+
+        html.light-mode .card {
+            background: linear-gradient(135deg, #ffffff 0%, #f9f9fc 100%);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        html.light-mode .sidebar {
+            background: linear-gradient(180deg, #ffffff 0%, #f9f9fc 100%);
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.08);
+        }
+
+        html.light-mode .header {
+            background: rgba(255, 255, 255, 0.6);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        html.light-mode .metric-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f9f9fc 100%);
+        }
+
+        html.light-mode .info-box {
+            background: rgba(56, 177, 9, 0.08);
+            border-color: rgba(56, 177, 9, 0.15);
+        }
+
+        html.light-mode .search-box {
+            background: rgba(255, 255, 255, 0.8);
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        html.light-mode .search-box:focus-within {
+            background: rgba(255, 255, 255, 1);
+            border-color: var(--accent-green);
+        }
+
+        html.light-mode .search-box svg {
+            color: var(--text-muted);
+        }
+
+        html.light-mode .search-box input::placeholder {
+            color: rgba(107, 107, 119, 0.6);
+        }
+
+        /* PROGRESS SECTION - LIGHT MODE */
+        html.light-mode div[style*="background: rgba(26, 26, 46"]  {
+            background: rgba(255, 255, 255, 0.7) !important;
+            border-color: rgba(0, 0, 0, 0.1) !important;
+        }
+
+        html.light-mode .progress-bar {
+            background: rgba(0, 0, 0, 0.1) !important;
+        }
+
+        /* SKIP LINK FOR ACCESSIBILITY */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: var(--accent-green);
+            color: white;
+            padding: 8px 16px;
+            z-index: 100;
+            border-radius: 0 0 6px 0;
+        }
+
+        .skip-link:focus {
+            top: 0;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-dark);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 240px;
+            }
+
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                padding: 24px;
+            }
+
+            .content {
+                padding: 24px;
+            }
+
+            .header-title {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Pular para conteúdo principal</a>
+
+    <!-- TELA DE LOGIN / SIGNUP -->
+    <div id="login-screen" style="display:none; position:fixed; inset:0; background:#00000F; z-index:9999; display:flex; align-items:center; justify-content:center;">
+        <div style="background:#0a0a1a; border:1px solid #1a1a2e; border-radius:16px; padding:48px; width:100%; max-width:400px;">
+            <div style="text-align:center; margin-bottom:32px;">
+                <img src="logo-dark.png" height="40" alt="Logo" style="margin-bottom:16px;">
+                <h2 style="font-family:'Plus Jakarta Sans',sans-serif; font-size:20px; color:#dce0e8; margin-bottom:8px;">Hub de Migração</h2>
+                <p style="color:#a0a4b0; font-size:14px;">Acesso restrito. Faça login para continuar.</p>
+            </div>
+
+            <!-- LOGIN FORM -->
+            <div id="loginForm" style="display:flex; flex-direction:column; gap:16px;">
+                <input id="loginEmail" type="email" placeholder="seu@email.com"
+                    style="background:#1a1a2e; border:1px solid #2a2a4e; border-radius:8px; padding:12px 16px; color:#dce0e8; font-size:14px; outline:none; font-family:'DM Sans',sans-serif;">
+                <div style="position:relative;">
+                    <input id="loginPassword" type="password" placeholder="Senha"
+                        style="width:100%; background:#1a1a2e; border:1px solid #2a2a4e; border-radius:8px; padding:12px 16px; padding-right:40px; color:#dce0e8; font-size:14px; outline:none; font-family:'DM Sans',sans-serif; box-sizing:border-box;">
+                    <button onclick="togglePasswordVisibility('loginPassword')" type="button"
+                        style="position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; color:#a0a4b0; cursor:pointer; width:24px; height:24px; padding:0; display:flex; align-items:center; justify-content:center;">
+                        <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px; height:20px;">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                    </button>
+                </div>
+                <button id="loginBtn" onclick="doLogin()"
+                    style="background:linear-gradient(135deg,#38B109,#1DD6F6); border:none; border-radius:8px; padding:12px; color:white; font-weight:600; font-size:15px; cursor:pointer; font-family:'DM Sans',sans-serif;">
+                    Entrar
+                </button>
+                <p id="loginError" style="color:#ff6b6b; font-size:13px; text-align:center; display:none;"></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <img id="logoImg" src="logo-dark.png" alt="Hub de Migração Logo" style="width: 40px; height: 40px; object-fit: contain;">
+                    <div class="logo-text">
+                        <div class="logo-title">Hub de Migração</div>
+                        <div class="logo-subtitle">2026</div>
+                    </div>
+                </div>
+                <p style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">Gerenciamento Central</p>
+            </div>
+
+            <nav class="sidebar-nav">
+                <!-- HOME -->
+                <div class="nav-section">
+                    <div class="nav-label">Principal</div>
+                    <div class="nav-item active" onclick="showPage('kanban')" data-page="kanban">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+                        <span>Home</span>
+                    </div>
+                    <div class="nav-item" onclick="showPage('apresentacao')" data-page="apresentacao">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 9.5c0 .83-.67 1.5-1.5 1.5S11 13.33 11 12.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5zm5 4.5H5v-3.5c0-1.1.9-2 2-2l2.5 3 3.5-4.5 3.5 4.5 2 2v2.5z"/></svg>
+                        <span>Apresentação do Plano</span>
+                    </div>
+                </div>
+
+                <!-- SOLUÇÕES/PROJETOS -->
+                <div class="nav-section">
+                    <div class="nav-label">Soluções</div>
+                    <div class="nav-item" onclick="showPage('gerador-resumos')" data-page="gerador-resumos">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M21 16v-5h-1V4c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v7H1v5h1v3h2v-3h14v3h2v-3h1zm-2-5v5H5v-5h14z"/></svg>
+                        <span>Gerador de Resumos</span>
+                    </div>
+                    <div class="nav-item" onclick="showPage('cronograma')" data-page="cronograma">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg>
+                        <span>Cronograma</span>
+                    </div>
+                    <div class="nav-item" onclick="showPage('base-conhecimento')" data-page="base-conhecimento">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M21 2H3c-1.1 0-1.99.9-1.99 2L1 6v12c0 1.1.9 2 2 2h14v2h4v-2h2V2zm-2 12H3V6h16v8z"/></svg>
+                        <span>Base de Conhecimento</span>
+                    </div>
+                    <div class="nav-item" onclick="showPage('configuracoes')" data-page="configuracoes">
+                        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.62l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.48.1.62l2.03 1.58c-.05.3-.07.62-.07.94 0 .33.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.62l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.48-.1-.62l-2.03-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                        <span>Configurações</span>
+                    </div>
+                </div>
+
+                <!-- STATUS -->
+                <div class="nav-section" style="margin-top: auto; border-top: 1px solid var(--border-dark); padding-top: 16px;">
+                    <div class="nav-label">Status Geral</div>
+                    <div style="padding: 0 8px; font-size: 12px; color: var(--text-muted);">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                            <span class="status-indicator online"></span>
+                            <span>1 Publicada</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                            <span class="status-indicator offline"></span>
+                            <span>4 Em Dev</span>
+                        </div>
+                        <div style="height: 1px; background: var(--border-dark); margin: 8px 0;"></div>
+                        <div style="margin-top: 12px; padding: 8px; background: rgba(56, 177, 9, 0.1); border-radius: 6px; text-align: center;">
+                            <div style="font-weight: 600; font-size: 18px; color: var(--accent-green);">36%</div>
+                            <div style="font-size: 11px; margin-top: 4px;">Progresso Geral</div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+            <!-- USER FOOTER -->
+            <div style="padding:16px 20px; border-top:1px solid var(--border-dark); margin-top:auto;">
+                <span id="userEmailDisplay" style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:8px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
+                <button onclick="doLogout()" style="width:100%; background:transparent; border:1px solid var(--border-dark); border-radius:8px; padding:8px; color:var(--text-muted); font-size:13px; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s;">
+                    Sair
+                </button>
+            </div>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+            <div class="header">
+                <div class="header-left">
+                    <div class="header-title" id="headerTitle">Dashboard</div>
+                    <div class="header-subtitle" id="headerSubtitle">Acompanhamento geral do projeto</div>
+                </div>
+
+                <div class="header-search">
+                    <div class="search-box">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                        <input type="text" id="searchInput" placeholder="Pesquisar projetos..." onkeyup="searchProjects(this.value)">
+                    </div>
+                </div>
+
+                <div class="header-right">
+                    <div class="header-action" onclick="toggleNotifications()" title="Notificações">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                        </svg>
+                        <span class="notification-badge">3</span>
+                        <div id="notificationMenu" class="dropdown-menu">
+                            <div class="dropdown-item">
+                                <span>✓</span>
+                                <div>
+                                    <div style="font-weight: 600;">Kanban publicado</div>
+                                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">há 2 horas</div>
+                                </div>
+                            </div>
+                            <div class="dropdown-item">
+                                <span>⚙️</span>
+                                <div>
+                                    <div style="font-weight: 600;">Build em progresso</div>
+                                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Meeting Recap</div>
+                                </div>
+                            </div>
+                            <div class="dropdown-item">
+                                <span>⏰</span>
+                                <div>
+                                    <div style="font-weight: 600;">Reunião agendada</div>
+                                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">em 30 minutos</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="user-menu" onclick="toggleUserMenu()">
+                        <div class="user-avatar">GD</div>
+                        <div class="user-info">
+                            <div class="user-name">Gabriel Dias</div>
+                            <div class="user-role">Admin</div>
+                        </div>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                        <div id="userDropdown" class="dropdown-menu">
+                            <div class="dropdown-item">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                </svg>
+                                Perfil
+                            </div>
+                            <div class="dropdown-item" onclick="toggleTheme()">
+                                <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                                </svg>
+                                <span id="themeLabel">Tema Claro</span>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <div class="dropdown-item">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="1"></circle>
+                                    <circle cx="19" cy="12" r="1"></circle>
+                                    <circle cx="5" cy="12" r="1"></circle>
+                                </svg>
+                                Preferências
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <div class="dropdown-item">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                    <polyline points="16 17 21 12 16 7"></polyline>
+                                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                                </svg>
+                                Sair
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content" id="main-content">
+                <!-- APRESENTAÇÃO DO PLANO -->
+                <div id="apresentacao" class="page">
+                    <div class="intro-section">
+                        <div class="intro-text">
+                            <h2>Plano de Migração 2026</h2>
+                            <p>Roadmap estratégico para modernização completa da plataforma com 5 soluções integradas, 93 agentes especializados e automação multi-setorial.</p>
+                        </div>
+                    </div>
+
+                    <div class="section-title">Fases do Plano</div>
+                    <div class="card-grid">
+                        <div class="card" style="cursor: default;">
+                            <div style="font-size: 14px; font-weight: 600; color: var(--accent-green); margin-bottom: 12px;">FASE 1: FUNDAÇÃO</div>
+                            <div class="card-title">Infraestrutura Base</div>
+                            <div class="card-desc">Configuração de ambientes, BD SQL, GitHub Actions, Vercel deployment e design system base.</div>
+                            <div class="progress-container">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 100%;"></div>
+                                </div>
+                                <span class="progress-percent">100%</span>
+                            </div>
+                            <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-dark); font-size: 12px; color: var(--text-muted);">
+                                ✅ Concluída | Jan - Fev 2026
+                            </div>
+                        </div>
+
+                        <div class="card" style="cursor: default;">
+                            <div style="font-size: 14px; font-weight: 600; color: var(--accent-cyan); margin-bottom: 12px;">FASE 2: NUCLEO</div>
+                            <div class="card-title">Soluções Core</div>
+                            <div class="card-desc">Desenvolvimento de Kanban, Meeting Recap e Cronograma com integração de dados em tempo real.</div>
+                            <div class="progress-container">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 50%;"></div>
+                                </div>
+                                <span class="progress-percent">50%</span>
+                            </div>
+                            <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-dark); font-size: 12px; color: var(--text-muted);">
+                                🔄 Em Progresso | Fev - Abr 2026
+                            </div>
+                        </div>
+
+                        <div class="card" style="cursor: default;">
+                            <div style="font-size: 14px; font-weight: 600; color: #a78bfa; margin-bottom: 12px;">FASE 3: AUTOMAÇÃO</div>
+                            <div class="card-title">AI & Squad Agents</div>
+                            <div class="card-desc">Integração de 93 agentes especializados, automação de workflows e inteligência artificial nas soluções.</div>
+                            <div class="progress-container">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 0%;"></div>
+                                </div>
+                                <span class="progress-percent">0%</span>
+                            </div>
+                            <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-dark); font-size: 12px; color: var(--text-muted);">
+                                ⏳ Planejado | Abr - Jun 2026
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="info-box">
+                        <h3>🎯 Objetivo Geral</h3>
+                        <p>Transformar o Plano de Migração 2026 em uma plataforma integrada de gestão de projetos com orquestração multi-agentes, automação de processos e análise preditiva com IA.</p>
+                    </div>
+                </div>
+
+                <!-- VISÃO GERAL (REMOVIDA - substituída pelo Dashboard/Kanban) -->
+                <div id="visao-geral" class="page" style="display: none;">
+                    <div class="intro-section">
+                        <div class="intro-text">
+                            <h2>Bem-vindo ao Hub de Migração</h2>
+                            <p>Esta página foi substituída pelo Dashboard integrado.</p>
+                        </div>
+                    </div>
+
+                    <!-- DASHBOARD DE MÉTRICAS -->
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-label">📊 Soluções Publicadas</div>
+                            <div class="metric-value">1</div>
+                            <div class="metric-subtitle">de 5 em produção</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">🏗️ Em Desenvolvimento</div>
+                            <div class="metric-value">4</div>
+                            <div class="metric-subtitle">progresso contínuo</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">✅ Conclusão Geral</div>
+                            <div class="metric-value">36%</div>
+                            <div class="metric-subtitle">do plano de 2026</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">⏱️ Tempo Decorrido</div>
+                            <div class="metric-value" id="daysElapsed">114</div>
+                            <div class="metric-subtitle">dias desde início</div>
+                        </div>
+                    </div>
+
+                    <div class="section-title">Status das Soluções</div>
+
+                    <div class="card-grid">
+                        <!-- KANBAN -->
+                        <div class="card" onclick="window.open('https://kanban-migracao-sdm.vercel.app/', '_blank')">
+                            <div class="card-icon">🗂️</div>
+                            <div class="card-title">Kanban de Migração</div>
+                            <div class="card-desc">Plataforma completa para gerenciar tarefas, features e progresso da migração com dashboard em tempo real e BD SQL.</div>
+                            <div class="card-footer">
+                                <span class="card-status published"><span class="status-indicator online"></span>Publicada</span>
+                                <span class="card-arrow">→</span>
+                            </div>
+                        </div>
+
+                        <!-- MEETING RECAP -->
+                        <div class="card">
+                            <div class="card-icon">📝</div>
+                            <div class="card-title">Meeting Recap Generator</div>
+                            <div class="card-desc">Converta transcrições de reuniões em resumos HTML profissionais com design system aplicado. Suporte a PDF incluído.</div>
+                            <div class="progress-container">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 60%;"></div>
+                                </div>
+                                <span class="progress-percent">60%</span>
+                            </div>
+                            <div class="card-footer">
+                                <span class="card-status dev"><span class="status-indicator offline"></span>Em Dev</span>
+                                <span class="card-arrow">→</span>
+                            </div>
+                        </div>
+
+                        <!-- CRONOGRAMA -->
+                        <div class="card">
+                            <div class="card-icon">📅</div>
+                            <div class="card-title">Cronograma de Reuniões</div>
+                            <div class="card-desc">Visualize e gerencie o cronograma completo de reuniões do plano de migração com integração de calendário.</div>
+                            <div class="progress-container">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 30%;"></div>
+                                </div>
+                                <span class="progress-percent">30%</span>
+                            </div>
+                            <div class="card-footer">
+                                <span class="card-status dev"><span class="status-indicator offline"></span>Em Dev</span>
+                                <span class="card-arrow">→</span>
+                            </div>
+                        </div>
+
+                        <!-- APRESENTAÇÃO -->
+                        <div class="card">
+                            <div class="card-icon">🎬</div>
+                            <div class="card-title">Apresentação do Plano</div>
+                            <div class="card-desc">Apresentação visual interativa e responsiva do Plano de Migração 2026 com todas as fases e detalhes.</div>
+                            <div class="progress-container">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 40%;"></div>
+                                </div>
+                                <span class="progress-percent">40%</span>
+                            </div>
+                            <div class="card-footer">
+                                <span class="card-status dev"><span class="status-indicator offline"></span>Em Dev</span>
+                                <span class="card-arrow">→</span>
+                            </div>
+                        </div>
+
+                        <!-- BASE DE CONHECIMENTO -->
+                        <div class="card">
+                            <div class="card-icon">📚</div>
+                            <div class="card-title">Base de Conhecimento</div>
+                            <div class="card-desc">Central de documentação com padrões, processos, pipelines e melhores práticas do projeto. Gerenciado pela Squad Arquivista.</div>
+                            <div class="progress-container">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 50%;"></div>
+                                </div>
+                                <span class="progress-percent">50%</span>
+                            </div>
+                            <div class="card-footer">
+                                <span class="card-status dev"><span class="status-indicator offline"></span>Em Dev</span>
+                                <span class="card-arrow">→</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="info-box">
+                        <h3>📋 Próximos Passos</h3>
+                        <p>As soluções em desenvolvimento serão publicadas na Vercel via GitHub Actions. Cada push para a branch main ativa o build automático e a publicação.</p>
+                    </div>
+                </div>
+
+                <!-- KANBAN DE MIGRAÇÃO - DASHBOARD DIAGNÓSTICO -->
+                <div id="kanban" class="page active">
+                    <div class="intro-section">
+                        <div class="intro-text">
+                            <h2>Monitoramento de Migrações</h2>
+                            <p>Diagnóstico centralizado de todas as migrações de clientes. Acompanhe o progresso, identifique gargalos e garanta a conclusão de 100% das empresas em 90 dias.</p>
+                        </div>
+                    </div>
+
+                    <!-- MÉTRICAS PRINCIPAIS -->
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-label">🎯 Total de Clientes</div>
+                            <div class="metric-value">46</div>
+                            <div class="metric-subtitle">empresas a migrar</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">✅ Concluído</div>
+                            <div class="metric-value" style="color: var(--accent-green);" id="completedCount">0</div>
+                            <div class="metric-subtitle">finalizadas</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">⏳ Em Progresso</div>
+                            <div class="metric-value" style="color: var(--accent-cyan);" id="inProgressCount">0</div>
+                            <div class="metric-subtitle">em migração</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">⚠️ Atenção</div>
+                            <div class="metric-value" style="color: #ffa500;" id="attentionCount">16</div>
+                            <div class="metric-subtitle">precisam de ação</div>
+                        </div>
+                    </div>
+
+                    <!-- BARRA DE PROGRESSO GERAL -->
+                    <div class="section-title">Progresso Geral de Migrações</div>
+                    <div style="background: rgba(26, 26, 46, 0.8); border: 1px solid var(--border-dark); border-radius: 12px; padding: 24px; margin-bottom: 40px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                            <span style="font-weight: 600; color: var(--text-light);">Conclusão Global</span>
+                            <span style="font-weight: 600; color: var(--accent-green);" id="progressPercent">0%</span>
+                        </div>
+                        <div class="progress-bar" style="height: 12px;">
+                            <div class="progress-fill" id="progressBar" style="width: 0%; height: 100%;"></div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-top: 12px; font-size: 12px; color: var(--text-muted);">
+                            <span id="migratedCompanies">0 de 46 empresas</span>
+                            <span id="daysRemaining">90 dias restantes</span>
+                        </div>
+                    </div>
+
+                    <!-- STATUS DAS COLUNAS -->
+                    <div class="section-title">Distribuição por Fases e Status</div>
+                    <div class="card-grid" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));">
+                        <div class="card" style="cursor: default; border-left: 4px solid #a0a4b0;">
+                            <div style="font-size: 12px; font-weight: 600; color: #a0a4b0; margin-bottom: 8px;">⏸ AGUARDANDO</div>
+                            <div style="font-size: 32px; font-weight: 700; color: #a0a4b0; margin-bottom: 8px;" id="status-waiting">46</div>
+                            <div class="card-desc" style="margin-bottom: 0;">Clientes aguardando início da migração</div>
+                        </div>
+
+                        <div class="card" style="cursor: default; border-left: 4px solid var(--accent-cyan);">
+                            <div style="font-size: 12px; font-weight: 600; color: var(--accent-cyan); margin-bottom: 8px;">🟦 FASE 1</div>
+                            <div style="font-size: 32px; font-weight: 700; color: var(--accent-cyan); margin-bottom: 8px;" id="status-phase1">0</div>
+                            <div class="card-desc" style="margin-bottom: 0;">Em análise e preparação</div>
+                        </div>
+
+                        <div class="card" style="cursor: default; border-left: 4px solid var(--accent-green);">
+                            <div style="font-size: 12px; font-weight: 600; color: var(--accent-green); margin-bottom: 8px;">🟩 FASE 2</div>
+                            <div style="font-size: 32px; font-weight: 700; color: var(--accent-green); margin-bottom: 8px;" id="status-phase2">0</div>
+                            <div class="card-desc" style="margin-bottom: 0;">Em execução e sincronização</div>
+                        </div>
+
+                        <div class="card" style="cursor: default; border-left: 4px solid #ffd700;">
+                            <div style="font-size: 12px; font-weight: 600; color: #ffd700; margin-bottom: 8px;">🟨 FASE 3</div>
+                            <div style="font-size: 32px; font-weight: 700; color: #ffd700; margin-bottom: 8px;" id="status-phase3">0</div>
+                            <div class="card-desc" style="margin-bottom: 0;">Em testes e validação</div>
+                        </div>
+
+                        <div class="card" style="cursor: default; border-left: 4px solid var(--accent-green);">
+                            <div style="font-size: 12px; font-weight: 600; color: var(--accent-green); margin-bottom: 8px;">✓ CONCLUÍDO</div>
+                            <div style="font-size: 32px; font-weight: 700; color: var(--accent-green); margin-bottom: 8px;" id="status-completed">0</div>
+                            <div class="card-desc" style="margin-bottom: 0;">Migração finalizada e validada</div>
+                        </div>
+
+                        <div class="card" style="cursor: default; border-left: 4px solid #ffa500;">
+                            <div style="font-size: 12px; font-weight: 600; color: #ffa500; margin-bottom: 8px;">⚠ EM ATENÇÃO</div>
+                            <div style="font-size: 32px; font-weight: 700; color: #ffa500; margin-bottom: 8px;" id="status-attention">16</div>
+                            <div class="card-desc" style="margin-bottom: 0;">Precisam de ação/suporte urgente</div>
+                        </div>
+                    </div>
+
+                    <!-- PRÓXIMOS PASSOS -->
+                    <div class="info-box">
+                        <h3>📋 Prioridades Imediatas</h3>
+                        <p>• <strong>Resolver 16 casos em atenção:</strong> Identificar bloqueios e fornecer suporte</p>
+                        <p>• <strong>Iniciar migrações:</strong> Começar com os primeiros clientes aguardando (recomendado: ~3-5 por semana)</p>
+                        <p>• <strong>Meta de conclusão:</strong> Finalizar ~1 empresa por dia para alcançar 100% dos 46 clientes em 90 dias</p>
+                        <p style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(56, 177, 9, 0.2);"><strong>Cronograma:</strong> 46 empresas ÷ 90 dias = ~0,5 empresas/dia | Recomendado: 1-2 por dia para margem de segurança</p>
+                    </div>
+
+                    <!-- BOTÃO PARA ACESSAR KANBAN COMPLETO -->
+                    <div style="text-align: center; margin-top: 40px;">
+                        <button class="btn" onclick="window.open('https://kanban-migracao-sdm.vercel.app/', '_blank')">Abrir Kanban Completo →</button>
+                        <p style="margin-top: 12px; font-size: 12px; color: var(--text-muted);">Acesso restrito. Apenas gestores podem editar tarefas e configurações.</p>
+                    </div>
+                </div>
+
+                <!-- GERADOR DE RESUMOS -->
+                <div id="gerador-resumos" class="page">
+                    <div class="intro-section">
+                        <div class="intro-text">
+                            <h2>Gerador de Resumos</h2>
+                            <p>Converta transcrições de reuniões em resumos HTML profissionais com design system aplicado e exportação em PDF.</p>
+                        </div>
+                    </div>
+
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-label">⚙️ Status</div>
+                            <div class="metric-value" style="color: #a78bfa;">EM DESENVOLVIMENTO</div>
+                            <div class="metric-subtitle">Fase 2 - Núcleo</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">📈 Progresso</div>
+                            <div class="metric-value">60%</div>
+                            <div class="metric-subtitle">Estrutura base concluída</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">👥 Squad</div>
+                            <div class="metric-value">5</div>
+                            <div class="metric-subtitle">Agentes especializados</div>
+                        </div>
+                    </div>
+
+                    <div class="section-title">Funcionalidades Planejadas</div>
+                    <div class="card-grid">
+                        <div class="card" style="cursor: default;">
+                            <div class="card-title">Upload de Transcrição</div>
+                            <div class="card-desc">Suporte a arquivos de áudio, vídeo e texto. Transcrição automática com IA.</div>
+                        </div>
+                        <div class="card" style="cursor: default;">
+                            <div class="card-title">Geração Inteligente</div>
+                            <div class="card-desc">Resumo automático com pontos-chave, ações e responsáveis identificados.</div>
+                        </div>
+                        <div class="card" style="cursor: default;">
+                            <div class="card-title">Exportação PDF</div>
+                            <div class="card-desc">Documento profissional com logo, formatação e branding customizado.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CRONOGRAMA DE REUNIÕES -->
+                <div id="cronograma" class="page">
+                    <div class="intro-section">
+                        <div class="intro-text">
+                            <h2>Cronograma de Reuniões</h2>
+                            <p>Visualize e gerencie o cronograma completo de reuniões do plano de migração com integração de calendário.</p>
+                        </div>
+                    </div>
+
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-label">⚙️ Status</div>
+                            <div class="metric-value" style="color: #a78bfa;">EM DESENVOLVIMENTO</div>
+                            <div class="metric-subtitle">Fase 2 - Núcleo</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">📈 Progresso</div>
+                            <div class="metric-value">30%</div>
+                            <div class="metric-subtitle">Design system definido</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">🛠️ Tech Stack</div>
+                            <div class="metric-value" style="font-size: 16px;">React</div>
+                            <div class="metric-subtitle">+ Calendar + BD SQL</div>
+                        </div>
+                    </div>
+
+                    <div class="section-title">Funcionalidades em Desenvolvimento</div>
+                    <div class="card-grid">
+                        <div class="card" style="cursor: default;">
+                            <div class="card-title">Visualização de Calendário</div>
+                            <div class="card-desc">Calendário interativo com todos os eventos e reuniões do plano.</div>
+                        </div>
+                        <div class="card" style="cursor: default;">
+                            <div class="card-title">Sincronização de Eventos</div>
+                            <div class="card-desc">Integração com Google Calendar, Outlook e calendários corporativos.</div>
+                        </div>
+                        <div class="card" style="cursor: default;">
+                            <div class="card-title">Notificações Automáticas</div>
+                            <div class="card-desc">Lembretes por email e notificação in-app para eventos próximos.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BASE DE CONHECIMENTO -->
+                <div id="base-conhecimento" class="page">
+                    <div class="intro-section">
+                        <div class="intro-text">
+                            <h2>Base de Conhecimento</h2>
+                            <p>Central de documentação com padrões, processos, pipelines e melhores práticas do projeto. Gerenciado pela Squad Arquivista.</p>
+                        </div>
+                    </div>
+
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-label">⚙️ Status</div>
+                            <div class="metric-value" style="color: #a78bfa;">EM DESENVOLVIMENTO</div>
+                            <div class="metric-subtitle">Fase 2 - Núcleo</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">📈 Progresso</div>
+                            <div class="metric-value">50%</div>
+                            <div class="metric-subtitle">Estrutura organizada</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">📚 Seções</div>
+                            <div class="metric-value">12</div>
+                            <div class="metric-subtitle">Categorias planejadas</div>
+                        </div>
+                    </div>
+
+                    <div class="section-title">Seções de Documentação</div>
+                    <div class="card-grid">
+                        <div class="card" style="cursor: default;">
+                            <div class="card-title">Padrões & Guidelines</div>
+                            <div class="card-desc">Design system, código, nomes, versionamento e contribuição.</div>
+                        </div>
+                        <div class="card" style="cursor: default;">
+                            <div class="card-title">Arquitetura & Processos</div>
+                            <div class="card-desc">Diagrama de sistema, fluxos de dados, pipelines CI/CD.</div>
+                        </div>
+                        <div class="card" style="cursor: default;">
+                            <div class="card-title">Guias & Tutoriais</div>
+                            <div class="card-desc">Setup de ambiente, deploy, troubleshooting e FAQs.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TODAS AS SOLUÇÕES (LEGACY) -->
+                <div id="soluções" class="page" style="display: none;">
+                    <div class="intro-section">
+                        <div class="intro-text">
+                            <h2>Todas as Soluções</h2>
+                            <p>Lista completa de todos os projetos do Plano de Migração 2026. Acompanhe o status de desenvolvimento e publicação de cada um.</p>
+                        </div>
+                    </div>
+
+                    <div class="section-title">✅ Publicadas (Vercel)</div>
+                    <div class="card-grid">
+                        <div class="card" onclick="window.open('https://kanban-migracao-sdm.vercel.app/', '_blank')">
+                            <div class="card-icon">🗂️</div>
+                            <div class="card-title">Kanban de Migração</div>
+                            <div class="card-desc">Publicada em: kanban-migracao-sdm.vercel.app</div>
+                            <div class="card-footer">
+                                <span class="card-status published"><span class="status-indicator online"></span>Ao Vivo</span>
+                                <span class="card-arrow">→</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-title" style="margin-top: 40px;">🏗️ Em Desenvolvimento</div>
+                    <div class="card-grid">
+                        <div class="card">
+                            <div class="card-icon">📝</div>
+                            <div class="card-title">Meeting Recap Generator</div>
+                            <div class="card-desc">Squad: 5 agentes | Tecnologia: HTML, PDF, Node.js</div>
+                            <div class="progress-container">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 60%;"></div>
+                                </div>
+                                <span class="progress-percent">60%</span>
+                            </div>
+                            <div class="card-footer">
+                                <span class="card-status dev"><span class="status-indicator offline"></span>Em Dev</span>
+                                <span class="card-arrow">→</span>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-icon">📅</div>
+                            <div class="card-title">Cronograma de Reuniões</div>
+                            <div class="card-desc">Tecnologia: React, Calendar, BD SQL</div>
+                            <div class="progress-container">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 30%;"></div>
+                                </div>
+                                <span class="progress-percent">30%</span>
+                            </div>
+                            <div class="card-footer">
+                                <span class="card-status dev"><span class="status-indicator offline"></span>Em Dev</span>
+                                <span class="card-arrow">→</span>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-icon">🎬</div>
+                            <div class="card-title">Apresentação do Plano</div>
+                            <div class="card-desc">Tecnologia: React, Slides, Design System</div>
+                            <div class="progress-container">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 40%;"></div>
+                                </div>
+                                <span class="progress-percent">40%</span>
+                            </div>
+                            <div class="card-footer">
+                                <span class="card-status dev"><span class="status-indicator offline"></span>Em Dev</span>
+                                <span class="card-arrow">→</span>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-icon">📚</div>
+                            <div class="card-title">Base de Conhecimento</div>
+                            <div class="card-desc">Squad: 6 agentes | Tecnologia: Next.js, Markdown, BD</div>
+                            <div class="progress-container">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 50%;"></div>
+                                </div>
+                                <span class="progress-percent">50%</span>
+                            </div>
+                            <div class="card-footer">
+                                <span class="card-status dev"><span class="status-indicator offline"></span>Em Dev</span>
+                                <span class="card-arrow">→</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="info-box">
+                        <h3>🚀 Como Publicar?</h3>
+                        <p><strong>Passo 1:</strong> Finalize o desenvolvimento da solução localmente</p>
+                        <p><strong>Passo 2:</strong> Faça push para a branch <code>main</code> do repositório</p>
+                        <p><strong>Passo 3:</strong> GitHub Actions ativa automaticamente o build</p>
+                        <p><strong>Passo 4:</strong> Vercel publica a aplicação com BD SQL configurado</p>
+                        <p><strong>Passo 5:</strong> Atualize o status aqui no Hub</p>
+                    </div>
+                </div>
+
+                <!-- CONFIGURAÇÕES -->
+                <div id="configuracoes" class="page">
+                    <div class="intro-section">
+                        <div class="intro-text">
+                            <h2>Configurações da Conta</h2>
+                            <p>Gerencie sua senha e preferências.</p>
+                        </div>
+                    </div>
+
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-label">👤 Minha Conta</div>
+                            <div class="metric-value" id="settingsEmail" style="font-size: 14px;">-</div>
+                            <div class="metric-subtitle">Seu email</div>
+                        </div>
+                    </div>
+
+                    <div class="section-title">Alterar Senha</div>
+                    <div style="background:rgba(26, 26, 46, 0.8); border:1px solid var(--border-dark); border-radius:12px; padding:24px; margin-bottom:40px;">
+                        <div style="display:flex; flex-direction:column; gap:16px; max-width:400px;">
+                            <div>
+                                <label style="display:block; margin-bottom:8px; font-weight:600; color:var(--text-light);">Senha Atual</label>
+                                <div style="position:relative;">
+                                    <input id="currentPassword" type="password" placeholder="Digite sua senha atual"
+                                        style="width:100%; background:#1a1a2e; border:1px solid #2a2a4e; border-radius:8px; padding:12px 16px; padding-right:40px; color:#dce0e8; font-size:14px; outline:none; font-family:'DM Sans',sans-serif; box-sizing:border-box;">
+                                    <button onclick="togglePasswordVisibility('currentPassword')" type="button"
+                                        style="position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; color:#a0a4b0; cursor:pointer; font-size:16px; padding:4px 8px;">
+                                        👁️
+                                    </button>
+                                </div>
+                            </div>
+                            <div>
+                                <label style="display:block; margin-bottom:8px; font-weight:600; color:var(--text-light);">Nova Senha</label>
+                                <div style="position:relative;">
+                                    <input id="newPassword" type="password" placeholder="Mínimo 6 caracteres"
+                                        style="width:100%; background:#1a1a2e; border:1px solid #2a2a4e; border-radius:8px; padding:12px 16px; padding-right:40px; color:#dce0e8; font-size:14px; outline:none; font-family:'DM Sans',sans-serif; box-sizing:border-box;">
+                                    <button onclick="togglePasswordVisibility('newPassword')" type="button"
+                                        style="position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; color:#a0a4b0; cursor:pointer; font-size:16px; padding:4px 8px;">
+                                        👁️
+                                    </button>
+                                </div>
+                            </div>
+                            <div>
+                                <label style="display:block; margin-bottom:8px; font-weight:600; color:var(--text-light);">Confirmar Nova Senha</label>
+                                <div style="position:relative;">
+                                    <input id="confirmPassword" type="password" placeholder="Repita a nova senha"
+                                        style="width:100%; background:#1a1a2e; border:1px solid #2a2a4e; border-radius:8px; padding:12px 16px; padding-right:40px; color:#dce0e8; font-size:14px; outline:none; font-family:'DM Sans',sans-serif; box-sizing:border-box;">
+                                    <button onclick="togglePasswordVisibility('confirmPassword')" type="button"
+                                        style="position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; color:#a0a4b0; cursor:pointer; font-size:16px; padding:4px 8px;">
+                                        👁️
+                                    </button>
+                                </div>
+                            </div>
+                            <button onclick="changePassword()"
+                                style="background:linear-gradient(135deg,#38B109,#1DD6F6); border:none; border-radius:8px; padding:12px; color:white; font-weight:600; font-size:15px; cursor:pointer; font-family:'DM Sans',sans-serif;">
+                                Alterar Senha
+                            </button>
+                            <p id="passwordMessage" style="color:#ff6b6b; font-size:13px; text-align:center; display:none;"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // ============ PASSWORD VISIBILITY (Global) ============
+        function togglePasswordVisibility(inputId) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+
+            const isPassword = input.type === 'password';
+            input.type = isPassword ? 'text' : 'password';
+
+            // Encontrar o botão e atualizar o ícone
+            const button = input.parentElement.querySelector('button');
+            if (button) {
+                const svg = button.querySelector('svg');
+                if (svg) {
+                    if (isPassword) {
+                        // Mostrar ícone de "olho fechado"
+                        svg.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/><line x1="4.22" y1="4.22" x2="19.78" y2="19.78" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="opacity:0;"/>';
+                    } else {
+                        // Mostrar ícone de "olho com risco"
+                        svg.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/><line x1="4.22" y1="4.22" x2="19.78" y2="19.78" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>';
+                    }
+                }
+            }
+        }
+
+        // ============ SUPABASE CONFIG ============
+        const SUPABASE_URL = 'https://zyzxhnvcanapobxagedp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp5enhobnZjYW5hcG9ieGFnZWRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU5NTIzMDIsImV4cCI6MjA5MTUyODMwMn0.G9x0BW8VYdP5nc1u4n74_UrmCc5u15aFS5MEgYvXCek';
+
+        const { createClient } = supabase;
+        const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const TOTAL_CLIENTS = 46;
+        const ATTENTION_THRESHOLD_DAYS = 14;
+
+        // ============ AUTH ============
+        async function initAuth() {
+            const { data: { session } } = await db.auth.getSession();
+            if (session) {
+                showDashboard(session.user);
+            } else {
+                showLoginScreen();
+            }
+
+            db.auth.onAuthStateChange((event, session) => {
+                if (event === 'SIGNED_OUT' || !session) {
+                    showLoginScreen();
+                } else if (event === 'SIGNED_IN') {
+                    showDashboard(session.user);
+                }
+            });
+        }
+
+        function showLoginScreen() {
+            document.getElementById('login-screen').style.display = 'flex';
+            document.querySelector('.container').style.display = 'none';
+        }
+
+        async function showDashboard(user) {
+            document.getElementById('login-screen').style.display = 'none';
+            document.querySelector('.container').style.display = 'flex';
+            document.getElementById('userEmailDisplay').textContent = user.email;
+            document.getElementById('settingsEmail').textContent = user.email;
+
+            const role = await loadUserRole();
+            if (role === 'admin') {
+                showAdminPanel();
+            }
+
+            loadKanbanData();
+            subscribeRealtime();
+        }
+
+        async function doLogin() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const btn = document.getElementById('loginBtn');
+            const errorEl = document.getElementById('loginError');
+
+            btn.textContent = 'Entrando...';
+            btn.disabled = true;
+            errorEl.style.display = 'none';
+
+            const { error } = await db.auth.signInWithPassword({ email, password });
+
+            if (error) {
+                errorEl.textContent = 'Email ou senha inválidos.';
+                errorEl.style.display = 'block';
+                btn.textContent = 'Entrar';
+                btn.disabled = false;
+            }
+        }
+
+        async function doLogout() {
+            await db.auth.signOut();
+        }
+
+        // ============ ADMIN FUNCTIONS ============
+        let currentUserRole = null;
+
+        async function loadUserRole() {
+            const { data: { session } } = await db.auth.getSession();
+            if (!session) return null;
+
+            const role = session.user.user_metadata?.role || 'user';
+            currentUserRole = role;
+            return role;
+        }
+
+        function showAdminPanel() {
+            const adminPanel = document.createElement('div');
+            adminPanel.id = 'adminPanel';
+            adminPanel.style.cssText = `
+                position: fixed;
+                right: 20px;
+                top: 100px;
+                background: #0a0a1a;
+                border: 1px solid #1a1a2e;
+                border-radius: 12px;
+                padding: 20px;
+                width: 300px;
+                z-index: 1000;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            `;
+
+            adminPanel.innerHTML = `
+                <h3 style="margin-top:0; color:#38B109; font-size:16px;">⚙️ Painel Admin</h3>
+                <div style="display:flex; flex-direction:column; gap:12px;">
+                    <input id="newUserEmail" type="email" placeholder="Email do novo usuário"
+                        style="background:#1a1a2e; border:1px solid #2a2a4e; border-radius:8px; padding:8px 12px; color:#dce0e8; font-size:13px; outline:none; font-family:'DM Sans',sans-serif;">
+                    <select id="newUserRole" style="background:#1a1a2e; border:1px solid #2a2a4e; border-radius:8px; padding:8px 12px; color:#dce0e8; font-size:13px; outline:none; font-family:'DM Sans',sans-serif;">
+                        <option value="user">Usuário (visualiza dados)</option>
+                        <option value="editor">Editor (visualiza + altera senhas)</option>
+                    </select>
+                    <button onclick="createNewUser()" style="background:linear-gradient(135deg,#38B109,#1DD6F6); border:none; border-radius:8px; padding:8px; color:white; font-weight:600; font-size:13px; cursor:pointer; font-family:'DM Sans',sans-serif;">
+                        Criar Usuário
+                    </button>
+                    <div id="adminMessage" style="font-size:12px; text-align:center; display:none;"></div>
+                    <hr style="border:none; border-top:1px solid #1a1a2e; margin:8px 0;">
+                    <div id="usersList" style="max-height:300px; overflow-y:auto; font-size:12px;"></div>
+                </div>
+            `;
+
+            document.body.appendChild(adminPanel);
+            loadUsers();
+        }
+
+        async function createNewUser() {
+            const email = document.getElementById('newUserEmail').value.trim();
+            const role = document.getElementById('newUserRole').value;
+            const msg = document.getElementById('adminMessage');
+
+            if (!email) {
+                msg.textContent = '❌ Preencha o email';
+                msg.style.display = 'block';
+                return;
+            }
+
+            // Gerar senha temporária aleatória
+            const tempPassword = Math.random().toString(36).slice(-10);
+
+            try {
+                const { error } = await db.auth.admin.createUser({
+                    email: email,
+                    password: tempPassword,
+                    email_confirm: true,
+                    user_metadata: {
+                        role: role,
+                        name: email,
+                        temp_password: true
+                    }
+                });
+
+                if (error) throw error;
+
+                msg.style.color = '#38B109';
+                msg.innerHTML = `✅ Usuário criado!<br>Senha temp: <strong>${tempPassword}</strong>`;
+                msg.style.display = 'block';
+
+                document.getElementById('newUserEmail').value = '';
+                setTimeout(() => loadUsers(), 500);
+
+            } catch (error) {
+                msg.style.color = '#ff6b6b';
+                msg.textContent = '❌ ' + (error.message || 'Erro ao criar usuário');
+                msg.style.display = 'block';
+            }
+        }
+
+        async function loadUsers() {
+            const { data: { users } } = await db.auth.admin.listUsers();
+            const usersList = document.getElementById('usersList');
+
+            usersList.innerHTML = users.map(u => `
+                <div style="padding:8px; border-bottom:1px solid #1a1a2e; cursor:pointer;">
+                    <div style="color:#dce0e8; font-weight:600;">${u.email}</div>
+                    <div style="color:#a0a4b0; font-size:11px;">Acesso: ${u.user_metadata?.role || 'user'}</div>
+                    <button onclick="deleteUserAdmin('${u.id}')" style="margin-top:4px; background:#ff6b6b; border:none; border-radius:4px; padding:4px 8px; color:white; font-size:11px; cursor:pointer; font-family:'DM Sans',sans-serif;">
+                        Deletar
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        async function deleteUserAdmin(userId) {
+            if (!confirm('Tem certeza que quer deletar este usuário?')) return;
+
+            try {
+                const { error } = await db.auth.admin.deleteUser(userId);
+                if (error) throw error;
+                loadUsers();
+            } catch (error) {
+                alert('Erro ao deletar: ' + error.message);
+            }
+        }
+
+        // ============ CHANGE PASSWORD ============
+        async function changePassword() {
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const msg = document.getElementById('passwordMessage');
+
+            msg.style.display = 'none';
+
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                msg.textContent = '❌ Preencha todos os campos.';
+                msg.style.color = '#ff6b6b';
+                msg.style.display = 'block';
+                return;
+            }
+
+            if (newPassword.length < 6) {
+                msg.textContent = '❌ A nova senha deve ter no mínimo 6 caracteres.';
+                msg.style.color = '#ff6b6b';
+                msg.style.display = 'block';
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                msg.textContent = '❌ As senhas não correspondem.';
+                msg.style.color = '#ff6b6b';
+                msg.style.display = 'block';
+                return;
+            }
+
+            // Primeiro, verificar se a senha atual está correta fazendo um re-authenticate
+            const { data: { session } } = await db.auth.getSession();
+            const { error: signInError } = await db.auth.signInWithPassword({
+                email: session.user.email,
+                password: currentPassword
+            });
+
+            if (signInError) {
+                msg.textContent = '❌ Senha atual incorreta.';
+                msg.style.color = '#ff6b6b';
+                msg.style.display = 'block';
+                return;
+            }
+
+            // Atualizar a senha
+            const { error: updateError } = await db.auth.updateUser({
+                password: newPassword
+            });
+
+            if (updateError) {
+                msg.textContent = '❌ ' + updateError.message;
+                msg.style.color = '#ff6b6b';
+                msg.style.display = 'block';
+            } else {
+                msg.textContent = '✅ Senha alterada com sucesso!';
+                msg.style.color = '#38B109';
+                msg.style.display = 'block';
+
+                // Limpar campos
+                document.getElementById('currentPassword').value = '';
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmPassword').value = '';
+
+                setTimeout(() => msg.style.display = 'none', 3000);
+            }
+        }
+
+        // ============ DADOS DO KANBAN ============
+        async function loadKanbanData() {
+            const { data: clients, error } = await db
+                .from('kanban_clients')
+                .select('id, meetings, ultima_atividade, created_at');
+
+            if (error) {
+                console.error('Erro ao carregar dados:', error);
+                return;
+            }
+
+            updateDashboard(clients);
+        }
+
+        function classifyClient(client) {
+            const m = client.meetings ? client.meetings.length : 0;
+            if (m === 0) return 'waiting';
+            if (m === 1) return 'phase1';
+            if (m <= 3) return 'phase2';
+            if (m <= 5) return 'phase3';
+            return 'completed';
+        }
+
+        function isAttention(client) {
+            if (classifyClient(client) === 'completed') return false;
+
+            const lastActivity = client.ultima_atividade
+                ? new Date(client.ultima_atividade)
+                : new Date(client.created_at);
+
+            const daysSince = Math.floor((Date.now() - lastActivity.getTime()) / (1000 * 60 * 60 * 24));
+            return daysSince >= ATTENTION_THRESHOLD_DAYS;
+        }
+
+        function updateDashboard(clients) {
+            const counts = { waiting: 0, phase1: 0, phase2: 0, phase3: 0, completed: 0, attention: 0 };
+
+            clients.forEach(client => {
+                const status = classifyClient(client);
+                counts[status]++;
+                if (isAttention(client)) counts.attention++;
+            });
+
+            const inProgress = counts.phase1 + counts.phase2 + counts.phase3;
+            const percent = Math.round((counts.completed / TOTAL_CLIENTS) * 100);
+
+            document.getElementById('completedCount').textContent = counts.completed;
+            document.getElementById('inProgressCount').textContent = inProgress;
+            document.getElementById('attentionCount').textContent = counts.attention;
+            document.getElementById('progressPercent').textContent = percent + '%';
+            document.getElementById('progressBar').style.width = percent + '%';
+            document.getElementById('migratedCompanies').textContent = counts.completed + ' de ' + TOTAL_CLIENTS + ' empresas';
+            document.getElementById('status-waiting').textContent = counts.waiting;
+            document.getElementById('status-phase1').textContent = counts.phase1;
+            document.getElementById('status-phase2').textContent = counts.phase2;
+            document.getElementById('status-phase3').textContent = counts.phase3;
+            document.getElementById('status-completed').textContent = counts.completed;
+            document.getElementById('status-attention').textContent = counts.attention;
+        }
+
+        // ============ REALTIME ============
+        let realtimeChannel = null;
+
+        function subscribeRealtime() {
+            if (realtimeChannel) {
+                db.removeChannel(realtimeChannel);
+            }
+
+            realtimeChannel = db
+                .channel('kanban-hub-watch')
+                .on('postgres_changes', {
+                    event: '*',
+                    schema: 'public',
+                    table: 'kanban_clients'
+                }, (payload) => {
+                    loadKanbanData();
+                })
+                .subscribe();
+        }
+
+        // ============ NAVEGAÇÃO ============
+        function showPage(pageName) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+
+            // Show selected page
+            document.getElementById(pageName).classList.add('active');
+
+            // Update nav highlight
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            const activeNav = document.querySelector(`[data-page="${pageName}"]`);
+            if (activeNav) {
+                activeNav.classList.add('active');
+            }
+
+            // Update header
+            const titles = {
+                'visao-geral': 'Home',
+                'apresentacao': 'Apresentação do Plano',
+                'kanban': 'Dashboard de Migrações',
+                'meeting-recap': 'Gerador de Resumos',
+                'cronograma': 'Cronograma de Reuniões',
+                'base-conhecimento': 'Base de Conhecimento',
+                'configuracoes': 'Configurações da Conta',
+                'soluções': 'Todas as Soluções'
+            };
+
+            const subtitles = {
+                'visao-geral': 'Home',
+                'apresentacao': 'Roadmap e fases estratégicas',
+                'kanban': 'Diagnóstico centralizado de todas as migrações',
+                'meeting-recap': 'Gerador inteligente de resumos de reunião',
+                'cronograma': 'Calendário e eventos do plano',
+                'base-conhecimento': 'Documentação centralizada',
+                'configuracoes': 'Altere sua senha e preferências',
+                'soluções': 'Acompanhe o status de cada solução'
+            };
+
+            document.getElementById('headerTitle').textContent = titles[pageName] || pageName;
+            document.getElementById('headerSubtitle').textContent = subtitles[pageName] || 'Plano de Migração 2026';
+
+            // Accessibility: focus on main content
+            const mainContent = document.querySelector('.content');
+            mainContent.scrollTop = 0;
+        }
+
+        // ============ THEME TOGGLE ============
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentMode = html.classList.contains('light-mode') ? 'light' : 'dark';
+            const newMode = currentMode === 'dark' ? 'light' : 'dark';
+
+            html.classList.toggle('light-mode');
+
+            // Update menu label
+            const themeLabel = document.getElementById('themeLabel');
+            themeLabel.textContent = newMode === 'dark' ? 'Tema Escuro' : 'Tema Claro';
+
+            // Update logo based on theme
+            const logoImg = document.getElementById('logoImg');
+            logoImg.src = newMode === 'dark' ? 'logo-dark.png' : 'logo-light.png';
+
+            // Persist preference
+            localStorage.setItem('theme-preference', newMode);
+
+            // Announce to screen readers
+            const announcement = document.createElement('div');
+            announcement.setAttribute('role', 'status');
+            announcement.setAttribute('aria-live', 'polite');
+            announcement.style.position = 'absolute';
+            announcement.style.left = '-10000px';
+            announcement.textContent = `Tema alterado para ${newMode === 'dark' ? 'escuro' : 'claro'}`;
+            document.body.appendChild(announcement);
+            setTimeout(() => announcement.remove(), 1000);
+        }
+
+        // ============ INICIALIZAÇÃO ============
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load theme preference
+            const savedTheme = localStorage.getItem('theme-preference');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const shouldBeDark = savedTheme === 'light' ? false : (savedTheme === 'dark' ? true : prefersDark);
+
+            if (!shouldBeDark) {
+                document.documentElement.classList.add('light-mode');
+                document.getElementById('logoImg').src = 'logo-light.png';
+                document.getElementById('themeLabel').textContent = 'Tema Claro';
+            } else {
+                document.getElementById('logoImg').src = 'logo-dark.png';
+                document.getElementById('themeLabel').textContent = 'Tema Escuro';
+            }
+
+            // Initialize authentication
+            initAuth();
+
+            // Calculate days elapsed (from Jan 22, 2026)
+            const startDate = new Date('2026-01-22');
+            const today = new Date();
+            const daysElapsed = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+            const daysElement = document.getElementById('daysElapsed');
+            if (daysElement) {
+                daysElement.textContent = daysElapsed;
+            }
+
+            // Keyboard navigation enhancement
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.setAttribute('role', 'button');
+                item.setAttribute('tabindex', '0');
+                item.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        this.click();
+                    }
+                });
+            });
+
+            // Add focus styles for keyboard navigation
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Tab') {
+                    document.body.classList.add('keyboard-nav');
+                }
+            });
+
+            document.addEventListener('click', function() {
+                document.body.classList.remove('keyboard-nav');
+            });
+        });
+
+        // ============ KEYBOARD SHORTCUTS ============
+        document.addEventListener('keydown', function(e) {
+            // Alt+T para alternar tema
+            if (e.altKey && e.key.toLowerCase() === 't') {
+                e.preventDefault();
+                toggleTheme();
+            }
+            // Alt+1 para Visão Geral
+            if (e.altKey && e.key === '1') {
+                e.preventDefault();
+                showPage('visao-geral');
+                document.querySelector('[data-page="visao-geral"]').click();
+            }
+            // Alt+2 para Apresentação
+            if (e.altKey && e.key === '2') {
+                e.preventDefault();
+                document.querySelector('[data-page="apresentacao"]').click();
+            }
+            // Ctrl+K para abrir busca
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                document.getElementById('searchInput').focus();
+            }
+        });
+
+        // ============ MENU DROPDOWNS ============
+        function toggleUserMenu() {
+            const dropdown = document.getElementById('userDropdown');
+            const notifMenu = document.getElementById('notificationMenu');
+            notifMenu.classList.remove('active');
+            dropdown.classList.toggle('active');
+        }
+
+        function toggleNotifications() {
+            const dropdown = document.getElementById('notificationMenu');
+            const userMenu = document.getElementById('userDropdown');
+            userMenu.classList.remove('active');
+            dropdown.classList.toggle('active');
+        }
+
+        // Fechar menus ao clicar fora
+        document.addEventListener('click', function(e) {
+            const userMenu = document.getElementById('userDropdown');
+            const notifMenu = document.getElementById('notificationMenu');
+            const header = document.querySelector('.header');
+
+            if (!header.contains(e.target)) {
+                userMenu.classList.remove('active');
+                notifMenu.classList.remove('active');
+            }
+        });
+
+        // ============ BUSCA ============
+        function searchProjects(query) {
+            const pages = [
+                { id: 'visao-geral', name: 'Dashboard', keywords: ['dashboard', 'visão', 'geral', 'inicio'] },
+                { id: 'apresentacao', name: 'Apresentação do Plano', keywords: ['apresentação', 'plano', 'fases', 'roadmap'] },
+                { id: 'kanban', name: 'Kanban de Migração', keywords: ['kanban', 'tarefas', 'migração'] },
+                { id: 'gerador-resumos', name: 'Gerador de Resumos', keywords: ['resumos', 'reunião', 'gerador', 'transcript'] },
+                { id: 'cronograma', name: 'Cronograma', keywords: ['cronograma', 'calendário', 'reuniões', 'eventos'] },
+                { id: 'base-conhecimento', name: 'Base de Conhecimento', keywords: ['base', 'conhecimento', 'documentação', 'docs'] }
+            ];
+
+            const searchQuery = query.toLowerCase().trim();
+
+            if (!searchQuery) {
+                return;
+            }
+
+            const results = pages.filter(page => {
+                return page.name.toLowerCase().includes(searchQuery) ||
+                       page.keywords.some(kw => kw.includes(searchQuery));
+            });
+
+            if (results.length > 0) {
+                // Auto-navigate para o primeiro resultado
+                showPage(results[0].id);
+                document.getElementById('searchInput').value = '';
+            }
+        }
+    </script>
+</body>
+</html>
