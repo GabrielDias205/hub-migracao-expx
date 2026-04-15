@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup Admin - Hub de Migração</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: #00000F;
+            color: #dce0e8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: #0a0a1a;
+            border: 1px solid #1a1a2e;
+            border-radius: 16px;
+            padding: 48px;
+            max-width: 500px;
+            width: 100%;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        p {
+            color: #a0a4b0;
+            margin-bottom: 24px;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        input {
+            background: #1a1a2e;
+            border: 1px solid #2a2a4e;
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: #dce0e8;
+            font-size: 14px;
+            outline: none;
+            font-family: 'DM Sans', sans-serif;
+        }
+        button {
+            background: linear-gradient(135deg, #38B109, #1DD6F6);
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            color: white;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+        }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .message {
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            display: none;
+        }
+        .success {
+            background: rgba(56, 177, 9, 0.1);
+            color: #38B109;
+            border: 1px solid rgba(56, 177, 9, 0.2);
+        }
+        .error {
+            background: rgba(255, 107, 107, 0.1);
+            color: #ff6b6b;
+            border: 1px solid rgba(255, 107, 107, 0.2);
+        }
+        .info {
+            background: rgba(29, 214, 246, 0.1);
+            color: #1DD6F6;
+            border: 1px solid rgba(29, 214, 246, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚙️ Setup Inicial</h1>
+        <p>Este script cria o usuário admin no Supabase.</p>
+
+        <div class="input-group">
+            <input type="email" id="adminEmail" value="admin" readonly>
+            <input type="password" id="adminPassword" value="Webtbg1209" readonly>
+            <textarea id="serviceRoleKey" placeholder="Cole aqui o Service Role Key do Supabase&#10;(Settings > API > Secret keys)" style="width:100%; height:100px; background:#1a1a2e; border:1px solid #2a2a4e; border-radius:8px; padding:12px 16px; color:#dce0e8; font-size:13px; outline:none; font-family:monospace; resize:none;"></textarea>
+            <button onclick="createAdmin()">Criar Usuário Admin</button>
+        </div>
+
+        <div id="message" class="message"></div>
+
+        <div id="info" class="message info">
+            <strong>ℹ️ Como funciona:</strong><br>
+            1. Cole o Service Role Key acima<br>
+            2. Clique no botão para criar o usuário admin<br>
+            3. Este script só pode ser rodado uma vez<br>
+            4. Após criar, acesse o Hub e faça login como admin<br>
+            5. Lá você poderá criar e gerenciar outros usuários
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://zyzxhnvcanapobxagedp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp5enhobnZjYW5hcG9ieGFnZWRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU5NTIzMDIsImV4cCI6MjA5MTUyODMwMn0.G9x0BW8VYdP5nc1u4n74_UrmCc5u15aFS5MEgYvXCek';
+
+        const { createClient } = supabase;
+        const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        async function createAdmin() {
+            const serviceRoleKey = document.getElementById('serviceRoleKey').value.trim();
+            const btn = document.querySelector('button');
+            const msg = document.getElementById('message');
+
+            if (!serviceRoleKey) {
+                msg.className = 'message error';
+                msg.textContent = '❌ Cole o Service Role Key primeiro!';
+                msg.style.display = 'block';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Criando...';
+
+            try {
+                const response = await fetch(`${SUPABASE_URL}/auth/v1/admin/users`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${serviceRoleKey}`
+                    },
+                    body: JSON.stringify({
+                        email: 'admin',
+                        password: 'Webtbg1209',
+                        email_confirm: true,
+                        user_metadata: {
+                            role: 'admin',
+                            name: 'Administrador'
+                        }
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    msg.className = 'message success';
+                    msg.innerHTML = '✅ <strong>Usuário admin criado com sucesso!</strong><br>Agora acesse o Hub e faça login com:<br>Email: admin<br>Senha: Webtbg1209';
+                    msg.style.display = 'block';
+                    btn.textContent = 'Concluído!';
+                    document.getElementById('serviceRoleKey').value = '';
+                } else {
+                    throw new Error(data.message || 'Falha ao criar usuário');
+                }
+
+            } catch (error) {
+                msg.className = 'message error';
+                msg.textContent = '❌ ' + error.message;
+                msg.style.display = 'block';
+                btn.disabled = false;
+                btn.textContent = 'Tentar Novamente';
+            }
+        }
+    </script>
+</body>
+</html>
